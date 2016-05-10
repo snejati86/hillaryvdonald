@@ -4,7 +4,6 @@ import (
 	"github.com/SlyMarbo/rss"
 	"fmt"
 	"time"
-//	"gopkg.in/couchbase/gocb.v1"
 	"strings"
 	"log"
 	"github.com/streadway/amqp"
