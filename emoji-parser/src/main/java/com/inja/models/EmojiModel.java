@@ -1,14 +1,17 @@
-package com.inja;
+package com.inja.models;
 
 /**
- * Created by sinasix on 5/7/16.
+ * This is the Emoji Model sent to the system.
+ * Getters and setters are needed for Jackson.
  */
-public class EmojiEnv {
+public class EmojiModel implements FilterResult
+{
     public String owner;
 
-    public EmojiEnv(String owner, String emojis) {
+    public String emojis;
+
+    public EmojiModel(String owner) {
         this.owner = owner;
-        this.emojis = emojis;
     }
 
     public String getEmojis() {
@@ -26,6 +29,4 @@ public class EmojiEnv {
     public void setOwner(String owner) {
         this.owner = owner;
     }
-
-    public String emojis;
 }

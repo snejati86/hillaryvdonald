@@ -1,11 +1,11 @@
-package com.inja;
+package com.inja.models;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true) 
-public final class Tweet {
+public final class TweetModel {
     public final Contributors contributors;
     public final Coordinates coordinates;
     public final String created_at;
@@ -40,71 +40,71 @@ public final class Tweet {
     public final Quoted_status quoted_status;
 
     @JsonCreator
-    public Tweet(
-    @JsonProperty("contributors")
-    Contributors contributors,
-    @JsonProperty("coordinates")
-    Coordinates coordinates,
-    @JsonProperty("created_at")
-    String created_at,
-    @JsonProperty("current_user_retweet")
-    Current_user_retweet current_user_retweet,
-    @JsonProperty("entities")
-    Entities entities,
-    @JsonProperty("favorite_count")
-    long favorite_count,
-    @JsonProperty("favorited")
-    boolean favorited,
-    @JsonProperty("filter_level")
-    String filter_level,
-    @JsonProperty("id")
-    long id,
-    @JsonProperty("id_str")
-    String id_str,
-    @JsonProperty("in_reply_to_screen_name")
-    String in_reply_to_screen_name,
-    @JsonProperty("in_reply_to_status_id")
-    long in_reply_to_status_id,
-    @JsonProperty("in_reply_to_status_id_str")
-    String in_reply_to_status_id_str,
-    @JsonProperty("in_reply_to_user_id")
-    long in_reply_to_user_id,
-    @JsonProperty("in_reply_to_user_id_str")
-    String in_reply_to_user_id_str,
-    @JsonProperty("lang")
-    String lang,
-    @JsonProperty("possibly_sensitive")
-    boolean possibly_sensitive,
-    @JsonProperty("retweet_count")
-    long retweet_count,
-    @JsonProperty("retweeted")
-    boolean retweeted,
-    @JsonProperty("retweeted_status")
-    Retweeted_status retweeted_status,
-    @JsonProperty("source")
-    String source,
-    @JsonProperty("scopes")
-    Scopes scopes,
-    @JsonProperty("text")
-    String text,
-    @JsonProperty("truncated")
-    boolean truncated,
-    @JsonProperty("user")
-    User user,
-    @JsonProperty("withheld_copyright")
-    boolean withheld_copyright,
-    @JsonProperty("withheld_in_countries")
-    Withheld_in_countries withheld_in_countries,
-    @JsonProperty("withheld_scope")
-    String withheld_scope,
-    @JsonProperty("extended_entities")
-    Extended_entities extended_entities,
-    @JsonProperty("quoted_status_id")
-    long quoted_status_id,
-    @JsonProperty("quoted_status_id_str")
-    String quoted_status_id_str,
-    @JsonProperty("quoted_status")
-    Quoted_status quoted_status
+    public TweetModel(
+            @JsonProperty("contributors")
+            Contributors contributors,
+            @JsonProperty("coordinates")
+            Coordinates coordinates,
+            @JsonProperty("created_at")
+            String created_at,
+            @JsonProperty("current_user_retweet")
+            Current_user_retweet current_user_retweet,
+            @JsonProperty("entities")
+            Entities entities,
+            @JsonProperty("favorite_count")
+            long favorite_count,
+            @JsonProperty("favorited")
+            boolean favorited,
+            @JsonProperty("filter_level")
+            String filter_level,
+            @JsonProperty("id")
+            long id,
+            @JsonProperty("id_str")
+            String id_str,
+            @JsonProperty("in_reply_to_screen_name")
+            String in_reply_to_screen_name,
+            @JsonProperty("in_reply_to_status_id")
+            long in_reply_to_status_id,
+            @JsonProperty("in_reply_to_status_id_str")
+            String in_reply_to_status_id_str,
+            @JsonProperty("in_reply_to_user_id")
+            long in_reply_to_user_id,
+            @JsonProperty("in_reply_to_user_id_str")
+            String in_reply_to_user_id_str,
+            @JsonProperty("lang")
+            String lang,
+            @JsonProperty("possibly_sensitive")
+            boolean possibly_sensitive,
+            @JsonProperty("retweet_count")
+            long retweet_count,
+            @JsonProperty("retweeted")
+            boolean retweeted,
+            @JsonProperty("retweeted_status")
+            Retweeted_status retweeted_status,
+            @JsonProperty("source")
+            String source,
+            @JsonProperty("scopes")
+            Scopes scopes,
+            @JsonProperty("text")
+            String text,
+            @JsonProperty("truncated")
+            boolean truncated,
+            @JsonProperty("user")
+            User user,
+            @JsonProperty("withheld_copyright")
+            boolean withheld_copyright,
+            @JsonProperty("withheld_in_countries")
+            Withheld_in_countries withheld_in_countries,
+            @JsonProperty("withheld_scope")
+            String withheld_scope,
+            @JsonProperty("extended_entities")
+            Extended_entities extended_entities,
+            @JsonProperty("quoted_status_id")
+            long quoted_status_id,
+            @JsonProperty("quoted_status_id_str")
+            String quoted_status_id_str,
+            @JsonProperty("quoted_status")
+            Quoted_status quoted_status
     )
 
     {

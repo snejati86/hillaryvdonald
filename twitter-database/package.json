@@ -10,7 +10,6 @@
   "license": "ISC",
   "dependencies": {
     "amqp": "^0.2.4",
-    "amqplib": "^0.4.1",
     "couchbase": "^2.1.6"
   }
 }

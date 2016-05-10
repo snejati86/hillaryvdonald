@@ -110,7 +110,7 @@ func main() {
 					log.Fatal("%s: %s", "Unable to publish to queue", err)
 				}else{
 					// A byte per tweet , 200K tweets per day * 365 days = 73MG of logs.
-					fmt.Print(".")
+					log.Println(tweet.Text)
 				}
 			}
 		}

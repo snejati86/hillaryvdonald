@@ -115,6 +115,7 @@ func main() {
 				fmt.Println("Failed to parse tweet")
 			}
 			content :=tweet.Text
+			log.Println(content)
 			profanity:=checkProfanity(content,badWords)
 			if profanity != nil {
 				envelope:=ProfanityEnvelope{}
