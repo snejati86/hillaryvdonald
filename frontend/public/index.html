@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Hillary vs Donald</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script src="reconnecting-websocket.min.js"/>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="raphael.js"></script>
+    <script src="jquery.usmap.js"></script>
+</head>
+
+<body style="background-color: black">
+<div id="map" style="position:absolute; margin-left:7%; opacity:0.4;width: 100%; height: 100%"></div>
+<div id="clicked-state" style="z-index: 0"></div>
+    <div class="row" style="z-index: 1">
+        <div class="col-sm-5 text-center">
+            <img class="center-block" src="hillary.png"/>
+            <h1 class="hilary-numbers" style="font-size:3vw;color: white">Emoji stream</h1>
+            <table class="table">
+                <thead class="thead-inverse">
+                <tr>
+                    <th style="color:white;text-align:center">Latest Profanities Used</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th class="hi1" style="color:white;text-align:center"></th>
+                </tr>
+                <tr>
+                    <th class="hi2" style="color:white;text-align:center"></th>
+                </tr>
+                <tr>
+                    <th class="hi3" style="color:white;text-align:center"></th>
+                </tr>
+                <tr>
+                    <th class="hi4" style="color:white;text-align:center"></th>
+                </tr>
+                <tr>
+                    <th class="hi5" style="color:white;text-align:center"></th>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+        <div class="col-sm-2 text-center" style="opacity: 0.6">
+            <h3 style="color: white">Systems live</h3>
+            <img class="twitter-logo" src="twitter-icon.png"><br>
+            <img src="reddit-icon.png" class="reddit-logo"><br>
+        </div>
+        <div class="col-sm-5 text-center">
+            <img class="center-block" src="trump.png">
+            <h1 class="donald-numbers" style="font-size:3vw;color: white">Emoji stream</h1>
+            <table class="table">
+                <thead class="thead-inverse">
+                <tr>
+                    <th style="color:white;text-align:center">Latest Profanities Used</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <th class="d1" style="color:white;text-align:center"></th>
+                </tr>
+                <tr>
+                    <th class="d2" style="color:white;text-align:center"></th>
+                </tr>
+                <tr>
+                    <th class="d3" style="color:white;text-align:center"></th>
+                </tr>
+                <tr>
+                    <th class="d4" style="color:white;text-align:center"></th>
+                </tr>
+                <tr>
+                    <th class="d5" style="color:white;text-align:center"></th>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12 text-center">
+            <div class="comment-section">
+                <h2 class="tweet" style="color: white">waiting for tweets</h2>
+                <h2 class="tweet2" style="color: white">waiting for tweets</h2>
+            </div>
+        </div>
+    </div>
+<script>
+    $( document ).ready(function() {
+        $('#map').usmap({
+        });
+        console.log('ready')
+        var hillaryNext =  0;
+        var trumpNext = 0;
+        var socket = new ReconnectingWebSocket("ws://104.196.135.152:8001",null, {debug: false, reconnectInterval: 3000});
+        socket.addEventListener('message',function(msg){
+            var data = JSON.parse(msg.data);
+            if ( data.topic === 'tweet' || data.topic ==='reddit')
+            {
+                var logo;
+                if ( data.topic === 'tweet'){
+                     logo = $(".twitter-logo");
+                }
+                else{
+                    logo = $(".reddit-logo");
+                }
+                if( !logo.is(':animated') ){
+                    logo.animate({opacity: 0.3}, 300, 'swing', function() {
+                        logo.animate({opacity: 0.8}, 300, 'swing');
+                    })
+                }
+                if ( data.loc !== undefined )
+                {
+                    $('#map').usmap('trigger',data.loc,"mouseover",data);
+                    setInterval(function(){
+                        $('#map').usmap('trigger',data.loc,"mouseout");
+
+                    },600);
+
+                }
+                var el = $(".tweet");
+                var el2 = $(".tweet2")
+                if( !el.is(':animated') ){
+                    el[0].innerHTML= data.body;
+                    el.css('margin-left',Math.floor(Math.random() * 6) + 1  );
+                    el.css('margin-right',Math.floor(Math.random() * 6) + 1  );
+
+
+                    el.animate({opacity: 1}, 2000, 'linear', function() {
+                        el.animate({opacity: 0}, 1600, 'linear');
+                    })
+//                el.fadeIn(2000,function(){
+//                    el.fadeOut(2000);
+//                });
+                }else if( !el2.is(':animated') ){
+                    el2[0].innerHTML= data.body;
+                    el2.css('margin-right',Math.floor(Math.random() * 6) + 1+'%'  );
+                    el2.css('margin-left',Math.floor(Math.random() * 6) + 1 +'%' );
+
+                    el2.animate({opacity: 1}, 600, 'linear', function() {
+                        el2.animate({opacity: 0}, 3000, 'linear');
+                    })
+
+                }
+            }
+            else if ( data.topic === 'curse')
+            {
+                var profanityEnv = data.body;
+                if ( profanityEnv.Toward === "Hillary")
+                {
+                    hillaryNext++;
+                    $(".hi"+hillaryNext)[0].innerHTML = profanityEnv.Words;
+                    if ( hillaryNext === 5 ){
+                        hillaryNext = 0;
+                    }
+                }
+                else
+                {
+                    trumpNext++;
+                    $(".d"+trumpNext)[0].innerHTML = profanityEnv.Words;
+                    if ( trumpNext === 5 ){
+                        trumpNext = 0;
+                    }
+                }
+            }
+            else if ( data.topic === 'emoji')
+            {
+                var emojiEnv = data.body;
+                if ( emojiEnv.owner === "trump")
+                {
+                    if ($(".donald-numbers")[0].innerHTML.length > 20  ){
+                        var index = $(".donald-numbers")[0].innerHTML.lastIndexOf(':');
+                        $(".donald-numbers")[0].innerHTML = $(".donald-numbers")[0].innerHTML.substr(index,$(".donald-numbers")[0].innerHTML.length);
+                    }
+                    $(".donald-numbers").append(emojiEnv.emojis);
+                }
+                else
+                {
+                    if ($(".hilary-numbers")[0].innerHTML.length > 20  ){
+                        var index = $(".hilary-numbers")[0].innerHTML.lastIndexOf(':');
+                        $(".hilary-numbers")[0].innerHTML = $(".hilary-numbers")[0].innerHTML.substr(index,$(".hilary-numbers")[0].innerHTML.length);
+                    }
+                    $(".hilary-numbers").append(emojiEnv.emojis);
+                }
+
+            }
+
+
+        })
+    });
+
+
+</script>
+</body>
+
+
+</html>

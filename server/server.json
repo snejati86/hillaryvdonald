@@ -1,0 +1,94 @@
+{
+    "kind": "Pod",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "server-2046322795-2fdc9",
+        "generateName": "server-2046322795-",
+        "namespace": "default",
+        "selfLink": "/api/v1/namespaces/default/pods/server-2046322795-2fdc9",
+        "uid": "8ad60296-135b-11e6-a915-42010af00044",
+        "resourceVersion": "56684",
+        "creationTimestamp": "2016-05-06T07:24:17Z",
+        "labels": {
+            "pod-template-hash": "2046322795",
+            "run": "server",
+	    "name":"server"
+        },
+        "annotations": {
+            "kubernetes.io/created-by": "{\"kind\":\"SerializedReference\",\"apiVersion\":\"v1\",\"reference\":{\"kind\":\"ReplicaSet\",\"namespace\":\"default\",\"name\":\"server-2046322795\",\"uid\":\"8ad46b7a-135b-11e6-a915-42010af00044\",\"apiVersion\":\"extensions\",\"resourceVersion\":\"56665\"}}\n",
+            "kubernetes.io/limit-ranger": "LimitRanger plugin set: cpu request for container server"
+        }
+    },
+    "spec": {
+        "volumes": [
+            {
+                "name": "default-token-v1mbq",
+                "secret": {
+                    "secretName": "default-token-v1mbq"
+                }
+            }
+        ],
+        "containers": [
+            {
+                "name": "server",
+                "image": "gcr.io/hillaryvdonald/server:v5",
+                "resources": {
+                    "requests": {
+                        "cpu": "100m"
+                    }
+                },
+                "volumeMounts": [
+                    {
+                        "name": "default-token-v1mbq",
+                        "readOnly": true,
+                        "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount"
+                    }
+                ],
+		"ports": [
+               {
+                  "hostPort": 8001,
+                  "containerPort": 8001
+               }],
+                "terminationMessagePath": "/dev/termination-log",
+                "imagePullPolicy": "IfNotPresent"
+            }
+        ],
+        "restartPolicy": "Always",
+        "terminationGracePeriodSeconds": 30,
+        "dnsPolicy": "ClusterFirst",
+        "serviceAccountName": "default",
+        "serviceAccount": "default",
+        "nodeName": "gke-hillaryvdonald-default-pool-c977dbfb-z7sk",
+        "securityContext": {}
+    },
+    "status": {
+        "phase": "Running",
+        "conditions": [
+            {
+                "type": "Ready",
+                "status": "True",
+                "lastProbeTime": null,
+                "lastTransitionTime": "2016-05-06T07:24:39Z"
+            }
+        ],
+        "hostIP": "10.142.0.5",
+        "podIP": "10.0.4.6",
+        "startTime": "2016-05-06T07:24:17Z",
+        "containerStatuses": [
+            {
+                "name": "server",
+                "state": {
+                    "running": {
+                        "startedAt": "2016-05-06T07:24:39Z"
+                    }
+                },
+                "lastState": {},
+                "ready": true,
+                "restartCount": 0,
+                "image": "gcr.io/hillaryvdonald/server:v1",
+                "imageID": "docker://3b8de25ccc8505b483105881d97aab370cd83d7532b996430402c55d171e8e66",
+                "containerID": "docker://9e55722dbf2d7b42040f2f2e25e80a2346fe39d83520e27b45689d505d727d2c"
+            }
+        ]
+    }
+}

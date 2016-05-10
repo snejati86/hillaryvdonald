@@ -1,0 +1,16 @@
+{
+  "name": "tweet-db",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "start": "npm install && node app.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "amqp": "^0.2.4",
+    "amqplib": "^0.4.1",
+    "couchbase": "^2.1.6"
+  }
+}
