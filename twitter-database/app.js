@@ -3,7 +3,7 @@ var couchbase = require('couchbase')
 var myCluster = new couchbase.Cluster('couchbase://'+process.env.COUCHBASE_SERVICE_PORT_8091_TCP_ADDR);
 
 
-var myBucket = myCluster.openBucket(process.env.DATA_BUCKET,function(err){
+var myBucket = myCluster.openBucket("tweets",function(err){
     if ( err ) {
         console.log(err);
         process.exit(1)
@@ -18,14 +18,10 @@ var myBucket = myCluster.openBucket(process.env.DATA_BUCKET,function(err){
             console.log('queue ready');
             // Use the default 'amq.topic' exchange
             connection.queue('', {durable:false,passive:false,autoDelete:true,exclusive:true},function (q) {
-                //q.bind('#');
 
-                // Catch all messages
-                q.bind(process.env.SUBSCRIBE_QUEUE,'',function(q){
+                q.bind("tweets",'',function(q){
                     console.log('Bound to queue')
-                    // Receive messages
                     q.subscribe(function (message) {
-                        // Print messages to stdout
                         var json = JSON.parse(message.data.toString());
                         myBucket.upsert(String(json.id), json, function(err, res) {
                             if ( err ){
