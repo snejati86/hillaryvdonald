@@ -31,7 +31,7 @@
         "containers": [
             {
                 "name": "server",
-                "image": "gcr.io/hillaryvdonald/server:v5",
+                "image": "gcr.io/hillaryvdonald/server:v3",
                 "resources": {
                     "requests": {
                         "cpu": "100m"

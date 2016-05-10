@@ -14,24 +14,25 @@ var myBucket = myCluster.openBucket('feeds',function(err){
         connection.on('ready', function () {
             console.log('queue ready');
             // Use the default 'amq.topic' exchange
-            connection.queue('feeds', {durable:false,passive:false,autoDelete:false},function (q) {
+            connection.queue('', {durable:false,passive:false,autoDelete:true,exclusive:true},function (q) {
                 // Catch all messages
-                q.bind('#');
-                console.log('Bound')
-                // Receive messages
-                q.subscribe(function (message) {
-                    // Print messages to stdout
-                    var json = JSON.parse(message.data.toString());
-                    console.log(json)
-                    console.log(myBucket)
-                    myBucket.upsert(String(json.id), json, function(err, res) {
-                        if ( err ){
-                            console.log(err);
-                        }else{
-                            console.log(res)
-                        }
+                q.bind("feeds",'',function(q){
+                    // Receive messages
+                    q.subscribe(function (message) {
+                        // Print messages to stdout
+                        var json = JSON.parse(message.data.toString());
+                        console.log(json)
+                        myBucket.upsert(String(json.id), json, function(err, res) {
+                            if ( err ){
+                                console.log(err);
+                            }else{
+                                console.log(res)
+                            }
+                        });
                     });
                 });
+                console.log('Bound')
+
 
             });
         });

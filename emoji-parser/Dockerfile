@@ -5,17 +5,16 @@ FROM java:openjdk-8-jdk
 WORKDIR /app
 
 # Copying all gradle files necessary to install gradle with gradlew
-COPY gradle gradle
-COPY \
-  build.gradle \
-  gradlew \
-  settings.gradle \
-  ./
+COPY gradle /app/gradle
+COPY build.gradle /app/build.gradle
+COPY settings.gradle /app/settings.gradle
+COPY gradlew /app/gradlew
 
-RUN ./gradlew clean assemble fatJar
+ADD src /app/src
+
+RUN ./gradlew fatJar
 
 # Install the gradle version used in the repository through gradlew
 
-ADD . ./
 
 CMD ["java","-jar","build/libs/emoji-all-1.0-SNAPSHOT.jar"]
