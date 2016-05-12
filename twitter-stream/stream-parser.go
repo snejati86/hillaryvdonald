@@ -23,7 +23,7 @@ func main() {
 	//Get properties.
 	queueUserName:=os.Getenv("Q_USER")
 	queuePassword:=os.Getenv("Q_PASS")
-	queueAddress:=os.Getenv("Q_ADDRESS")
+	queueAddress:=os.Getenv("RABBITMQ_SERVICE_PORT_5672_TCP_ADDR")
 	consumerKey := os.Getenv("CONSUMER_KEY")
 	consumerSecret := os.Getenv("CONSUMER_SECRET")
 	accessToken := os.Getenv("ACCESS_TOKEN")
