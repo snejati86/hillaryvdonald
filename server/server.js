@@ -88,12 +88,12 @@ connection.on('ready', function () {
             q.subscribe(function (message) {
                 // Print messages to stdout
                 var latest = message.data.toString();
-                console.log(latest)
                 var reddit = JSON.parse(latest);
+                console.log(reddit)
                 var message = {}
                 message['topic']='reddit';
-                if ( reddit.body.body.length < 150){
-                    message['body'] = reddit.body.body;
+                if ( reddit.data.body.length < 150){
+                    message['body'] = reddit.data.body;
                     radio('new').broadcast(message);
                 }
             });
