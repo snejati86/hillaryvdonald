@@ -10,24 +10,31 @@ import (
 	"encoding/json"
 )
 
+
 func failOnError(err error, msg string) {
 	if err != nil {
 		log.Fatalf("%s: %s", msg, err)
 		panic(fmt.Sprintf("%s: %s", msg, err))
 	}
 }
+const(
+	TWEETS_EXCHANGE_NAME = "tweets"
+	TWEETS_EXCHANGE_TYPE = "fanout"
+	TWEET_FILTER = []string{"@realDonaldTrump","@HillaryClinton"}
+	queueUserName=os.Getenv("Q_USER")
+	queuePassword=os.Getenv("Q_PASS")
+	queueAddress=os.Getenv("RABBITMQ_SERVICE_PORT_5672_TCP_ADDR")
+	consumerKey = os.Getenv("CONSUMER_KEY")
+	consumerSecret = os.Getenv("CONSUMER_SECRET")
+	accessToken = os.Getenv("ACCESS_TOKEN")
+	accessSecret = os.Getenv("ACCESS_SECRET")
+)
 
 
 func main() {
 
 	//Get properties.
-	queueUserName:=os.Getenv("Q_USER")
-	queuePassword:=os.Getenv("Q_PASS")
-	queueAddress:=os.Getenv("RABBITMQ_SERVICE_PORT_5672_TCP_ADDR")
-	consumerKey := os.Getenv("CONSUMER_KEY")
-	consumerSecret := os.Getenv("CONSUMER_SECRET")
-	accessToken := os.Getenv("ACCESS_TOKEN")
-	accessSecret := os.Getenv("ACCESS_SECRET")
+
 
 	if consumerKey == "" || consumerSecret == "" || accessToken == "" || accessSecret == "" || queueAddress == "" || queuePassword == "" || queueUserName == "" {
 		log.Fatal("Consumer key/secret and Access token/secret required/queue Information")
@@ -42,25 +49,23 @@ func main() {
 	ch, err := conn.Channel()
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
-//
-//	q, err := ch.QueueDeclare(
-//		"tweets", // name
-//		true, // durable
-//		false, // delete when unused
-//		false, // exclusive
-//		false, // no-wait
-//		nil, // arguments
-//	)
-	err = ch.ExchangeDeclare("tweets","fanout",true,false,false,false,nil)
+
+	//Declase exchange.
+	err = ch.ExchangeDeclare(TWEETS_EXCHANGE_NAME,TWEETS_EXCHANGE_TYPE,true,false,false,false,nil)
 
 	failOnError(err, "Failed to declare a queue")
-	tweetChannel := make(chan *twitter.Tweet)
 
 
+	//Setup twitter connection.
 	config := oauth1.NewConfig(consumerKey, consumerSecret)
 	token := oauth1.NewToken(accessToken, accessSecret)
 	httpClient := config.Client(oauth1.NoContext, token)
 	client := twitter.NewClient(httpClient)
+
+	/**
+	A Changel to send and recieve tweets.
+	 */
+	tweetChannel := make(chan *twitter.Tweet)
 
 	demux := twitter.NewSwitchDemux()
 	demux.Tweet = func(tweet *twitter.Tweet) {
@@ -77,15 +82,22 @@ func main() {
 
 	// FILTER
 	filterParams := &twitter.StreamFilterParams{
-		Track:         []string{"@realDonaldTrump", "@HillaryClinton"},
+		Track:         TWEET_FILTER,
 		StallWarnings: twitter.Bool(true),
 	}
+
+
 	stream, err := client.Streams.Filter(filterParams)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Receive messages until stopped or stream quits
+
+	/**
+	It does scare me how fast the last few years passed me by. hollow,uneventful and dull like ephemeral ports.
+	In a staring contest with sunny san diego.
+	 */
 	go demux.HandleChan(stream.Messages)
 
 	// Wait for SIGINT and SIGTERM (HIT CTRL-C)
@@ -98,7 +110,7 @@ func main() {
 			}else{
 
 				err:=ch.Publish(
-					"tweets",     // exchange
+					TWEETS_EXCHANGE_NAME,     // exchange
 					"", // routing key
 					false,  // mandatory
 					false,  // immediate
@@ -109,7 +121,6 @@ func main() {
 				if err != nil {
 					log.Fatal("%s: %s", "Unable to publish to queue", err)
 				}else{
-					// A byte per tweet , 200K tweets per day * 365 days = 73MG of logs.
 					log.Println(tweet.Text)
 				}
 			}
