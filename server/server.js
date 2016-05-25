@@ -1,6 +1,18 @@
 var ws = require("nodejs-websocket")
 var amqp = require('amqp');
 var radio = require('radio')
+var LRU = require("lru-cache")
+var uuid = require('node-uuid');
+
+var options = { max: 100
+    , length: function (n, key) { return 1}
+    , dispose: function (key, n) { }
+    , maxAge: 1000 * 60 * 60 }
+
+var tweetCache = LRU(options);
+var profanityCache = LRU(options);
+var emojiCache = LRU(options);
+
 var connection = amqp.createConnection({ host: 'guest:guest@'+process.env.RABBITMQ_SERVICE_PORT_5672_TCP_ADDR+':5672' });
 
 
@@ -12,6 +24,10 @@ var stateMap = {}
 lineReader.on('line', function (line) {
     stateMap[line]=true;
 });
+
+
+
+
 
 // Wait for connection to become established.
 connection.on('ready', function () {
@@ -40,6 +56,7 @@ connection.on('ready', function () {
                 }
                 //message['location'] =
                 radio('new').broadcast(message);
+                tweetCache.set(uuid.v1(),message)
             });
         });
     });
@@ -56,6 +73,7 @@ connection.on('ready', function () {
                 var message = {}
                 message['topic']='curse';
                 message['body'] = profanityEnvelope;
+                profanityCache.set(uuid.v1(),message);
                 radio('new').broadcast(message);
             });
         })
@@ -74,6 +92,7 @@ connection.on('ready', function () {
                 var message = {}
                 message['topic']='emoji';
                 message['body'] = emoji;
+                emojiCache.set(uuid.v1(),message);
                 radio('new').broadcast(message);
             });
         });
@@ -82,8 +101,26 @@ connection.on('ready', function () {
 
     connection.queue('', {durable:false,passive:false,autoDelete:true,exclusive:true},function (q) {
         // Catch all messages
-        q.bind('reddit','',function(){
+        q.bind('feelings','',function(){
             console.log('bound4')
+            // Receive messages
+            q.subscribe(function (message) {
+                var latest = message.data.toString();
+                console.log(latest)
+                var feelings = JSON.parse(latest);
+                message['topic']='feelings';
+                message['body'] = feelings;
+                radio('new').broadcast(message);
+            });
+        });
+
+    });
+
+
+    connection.queue('', {durable:false,passive:false,autoDelete:true,exclusive:true},function (q) {
+        // Catch all messages
+        q.bind('reddit','',function(){
+            console.log('bound5')
             // Receive messages
             q.subscribe(function (message) {
                 // Print messages to stdout
@@ -113,8 +150,27 @@ connection.on('error', function(e) {
             console.log(data)
             conn.sendText(JSON.stringify(data))
     };
+     tweetCache.forEach(function(value,key,cache){
+        conn.sendText(JSON.stringify(value));
+     });
+     console.log(tweetCache.itemCount)
+     profanityCache.forEach(function(value,key,cache){
+         console.log('Sending from cache');
+         conn.sendText(JSON.stringify(value));
+     });
+     console.log(profanityCache.itemCount)
+     emojiCache.forEach(function(value,key,cache){
+         console.log('Sending from cache');
+         conn.sendText(JSON.stringify(value));
+     });
+     console.log(emojiCache.itemCount)
     radio('new').subscribe(callback)
 
+     conn.on("error", function (code, reason) {
+         //clearInterval(timer)
+         radio('new').unsubscribe(callback);
+         console.log("ERROR closed")
+     })
     conn.on("close", function (code, reason) {
         //clearInterval(timer)
         radio('new').unsubscribe(callback);

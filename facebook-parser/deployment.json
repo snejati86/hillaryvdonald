@@ -1,0 +1,78 @@
+{
+    "kind": "Deployment",
+    "apiVersion": "extensions/v1beta1",
+    "metadata": {
+        "name": "fb-stream",
+        "namespace": "default",
+        "selfLink": "/apis/extensions/v1beta1/namespaces/default/deployments/fb-stream",
+        "uid": "59c726ab-1715-11e6-a95c-42010af00053",
+        "resourceVersion": "261635",
+        "generation": 2,
+        "creationTimestamp": "2016-05-11T01:11:54Z",
+        "labels": {
+            "run": "fb-stream"
+        },
+        "annotations": {
+            "deployment.kubernetes.io/revision": "1"
+        }
+    },
+    "spec": {
+        "replicas": 1,
+        "selector": {
+            "matchLabels": {
+                "run": "fb-stream"
+            }
+        },
+        "template": {
+            "metadata": {
+                "creationTimestamp": null,
+                "labels": {
+                    "run": "fb-stream"
+                }
+            },
+            "spec": {
+                "containers": [
+                    {
+                        "name": "donald-stream",
+                      "env": [{
+                      "name": "FACEBOOK_FEED",
+                      "value":"https://www.facebook.com/DonaldTrump/"
+                    }],
+                        "image": "gcr.io/hillaryvdonald/fb-stream:v1",
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "imagePullPolicy": "IfNotPresent"
+                    },
+                  {
+                    "name": "hillary-stream",
+                    "env": [{
+                      "name": "FACEBOOK_FEED",
+                      "value":"https://www.facebook.com/hillaryclinton/"
+                    }],
+                    "image": "gcr.io/hillaryvdonald/fb-stream:v1",
+                    "resources": {},
+                    "terminationMessagePath": "/dev/termination-log",
+                    "imagePullPolicy": "IfNotPresent"
+                  }
+                ],
+                "restartPolicy": "Always",
+                "terminationGracePeriodSeconds": 30,
+                "dnsPolicy": "ClusterFirst",
+                "securityContext": {}
+            }
+        },
+        "strategy": {
+            "type": "RollingUpdate",
+            "rollingUpdate": {
+                "maxUnavailable": 1,
+                "maxSurge": 1
+            }
+        }
+    },
+    "status": {
+        "observedGeneration": 2,
+        "replicas": 1,
+        "updatedReplicas": 1,
+        "availableReplicas": 1
+    }
+}

@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 	"github.com/streadway/amqp"
-	"github.com/dghubble/go-twitter/twitter"
-	"encoding/json"
 	"io/ioutil"
 	"archive/zip"
 	"path/filepath"
@@ -16,18 +14,22 @@ import (
 	storage "google.golang.org/api/storage/v1"
 	"golang.org/x/oauth2/google"
 	"golang.org/x/net/context"
+	"github.com/satori/go.uuid"
+
 )
 
 
 const (
-	MAX_BYTES = 1024  * 50
+	MAX_BYTES = 1024  * 1024 * 100
 	scope = storage.DevstorageFullControlScope
-	SECONDS = 30
+	SECONDS = 30 * 60
 )
 
 
 var (
-	bucketName  = os.Getenv("GCS_BUCKET")
+	bucketName  = os.Getenv("BUCKET")
+	exchange = os.Getenv("EXCHANGE")
+
 )
 
 
@@ -104,24 +106,15 @@ func failOnError(err error, msg string) {
 
 }
 
-func dumpFile(tweets [][]byte )  {
-	for i := 0; i < len(tweets); i++ {
-
-		var tweet twitter.Tweet
-		_=json.Unmarshal(tweets[i],&tweet)
-		//fmt.Println(tweet)
-		//var b bytes.Buffer
-		//w := gzip.NewWriter(&b)
-		//w.Write(tweets[i])
-		//t,_:=time.Parse(time.RFC1123,tweet.CreatedAt)
-		//println(t)
-		err:=ioutil.WriteFile("tmp/tweet-"+strconv.FormatInt(tweet.ID,10), tweets[i], 0644)
+func dumpFile(msgs [][]byte )  {
+	for i := 0; i < len(msgs); i++ {
+		err:=ioutil.WriteFile("tmp/"+string(uuid.NewV4()[15]), msgs[i], 0644)
 		fmt.Println(err)
 		//		w.Close()
 
 	}
 	t:=time.Now().Unix()
-	zipit("tmp/","upload/tweets-"+strconv.FormatInt(t,10)+".zip")
+	zipit("tmp/","upload/data-"+strconv.FormatInt(t,10)+".zip")
 	RemoveContents("tmp")
 }
 
@@ -164,7 +157,7 @@ func upload(){
 		fmt.Println(info.Name())
 		object := &storage.Object{Name: info.Name()}
 		file, _ := os.Open(path)
-		if res, err := service.Objects.Insert("tweets-db", object).Media(file).Do(); err == nil {
+		if res, err := service.Objects.Insert(bucketName, object).Media(file).Do(); err == nil {
 			fmt.Printf("Created object %v at location %v\n\n", res.Name, res.SelfLink)
 		} else {
 			log.Fatal(err)
@@ -179,6 +172,9 @@ func upload(){
 
 
 func main() {
+	if bucketName == "" || exchange == ""{
+		panic("Properties not set")
+	}
 	err:=os.Mkdir("tmp",0777)
 	err=os.Mkdir("upload",0777)
 	fmt.Println(err)
@@ -186,7 +182,7 @@ func main() {
 
 
 	var total int = 0
-	var tweets [][]byte
+	var data [][]byte
 	compress:=make(chan [][]byte)
 	uploadTime := time.NewTicker(time.Second * SECONDS).C
 
@@ -216,7 +212,7 @@ func main() {
 	err = ch.QueueBind(
 		q.Name, // queue name
 		"",     // routing key
-		"tweets", // exchange
+		exchange, // exchange
 		false,
 		nil)
 
@@ -237,14 +233,14 @@ func main() {
 		for d := range msgs {
 			size:=len(d.Body)
 			total+=size
-			tweets = append(tweets, d.Body)
+			data = append(data, d.Body)
 			fmt.Println(total)
 			if err != nil {
 				fmt.Println("Failed to parse tweet")
 			}
 			if total >= MAX_BYTES {
-				compress<-tweets
-				tweets=nil
+				compress<-data
+				data=nil
 				total=0
 				failOnError(err,"ouch")
 			}

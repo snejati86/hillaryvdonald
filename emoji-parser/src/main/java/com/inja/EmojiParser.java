@@ -72,7 +72,13 @@ class EmojiParser
                     throws IOException {
 
                 String message = new String(body, "UTF-8");
-                TweetModel tweetModel = objectMapper.readValue(body, TweetModel.class);
+                TweetModel tweetModel;
+                try {
+                     tweetModel = objectMapper.readValue(body, TweetModel.class);
+                }
+                catch (Exception e){
+                    return ;
+                }
                 logger.trace("Go message = {}"+tweetModel.text);
                 List<String> emojis = EmojiUtils.getEmojis(tweetModel.text);
                 if  ( emojis.size() > 0 )

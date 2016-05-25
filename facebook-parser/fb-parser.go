@@ -46,7 +46,6 @@ func parseFeed(s string){
 	defer resp.Body.Close()
 
 	z := html.NewTokenizer(resp.Body)
-
 	for {
 		tt := z.Next()
 		switch {
@@ -67,7 +66,6 @@ func parseFeed(s string){
 							body:=z.Token().Data
 							id:=hash(body)
 							feedModel:=FacebookFeed{s,body,id,time.Now().Unix()}
-
 							bytes,err:=json.Marshal(feedModel)
 							fmt.Println(string(bytes))
 							err = channel.Publish(
@@ -91,6 +89,7 @@ func parseFeed(s string){
 			}
 
 		}
+
 	}
 
 }

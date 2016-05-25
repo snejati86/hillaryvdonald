@@ -1,0 +1,70 @@
+
+/*#hillary-column {*/
+    /*margin:1%;*/
+/*}*/
+/*#donald-column{*/
+    /*margin:1%;*/
+/*}*/
+.image-holder img{
+    padding: 0px;
+}
+.image-left p{
+   !important; font-family: 'Roboto', sans-serif; font-size: 1vw;font-weight: 100;
+    color:white;
+}
+.image-left h4{
+!important; font-family: 'Roboto', sans-serif; font-size: 2vw;font-weight: 100;
+    color:white;
+}
+
+.image-right p{
+!important; font-family: 'Roboto', sans-serif; font-size: 1.5vw;font-weight: 100;
+    color:white;
+}
+.image-right h4{
+!important; font-family: 'Roboto', sans-serif; font-size: 2vw;font-weight: 100;
+    color:white;
+}
+.font-apply{
+!important; font-family: 'Roboto', sans-serif; font-size: 1.3vw;font-weight: 100;
+    color:white;
+}
+
+.emoji-row{
+    height: 2vw;
+    margin-left:1vw;
+    margin-right:1vw;
+    border: dotted;
+    border: 1px;
+    opacity: 0.9;
+    background: #D6D9D9;
+    border-radius: 10px;
+}
+
+.emoji-row p{
+    overflow: hidden;
+    font-size:1.8vw;
+    color:#D6D9D9;
+}
+.emoji-container h4{
+!important; font-family: 'Roboto', sans-serif; font-size: 2vw; font-weight: 100;
+    color:white;
+}
+.social-beat{
+    margin-top:1%;
+}
+.tweet-holder{
+!important; font-family: 'Roboto', sans-serif; font-size: 1.3vw; font-weight: 400;color:white;
+opacity: 0;
+
+}
+.tweet-house{
+    height: 10vh;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+}
+
+.inner-column{
+    margin:4%;
+}
