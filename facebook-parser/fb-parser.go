@@ -11,6 +11,8 @@ import (
 	"os"
 	"time"
 	"encoding/json"
+	"github.com/gocql/gocql"
+	"strconv"
 )
 
 type FacebookFeed struct {
@@ -35,6 +37,8 @@ func hash(s string) uint32 {
 }
 
 var channel *amqp.Channel
+var cache map[uint32]bool
+var session *gocql.Session
 
 func parseFeed(s string){
 
@@ -66,18 +70,24 @@ func parseFeed(s string){
 							body:=z.Token().Data
 							id:=hash(body)
 							feedModel:=FacebookFeed{s,body,id,time.Now().Unix()}
-							bytes,err:=json.Marshal(feedModel)
-							fmt.Println(string(bytes))
-							err = channel.Publish(
-								"facebook",     // exchange
-								"", // routing key
-								false,  // mandatory
-								false,  // immediate
-								amqp.Publishing {
-									ContentType: "text/plain",
-									Body:        bytes,
-								})
-							failOnError(err, "Failed to publish a message")
+							if _, ok := cache[id]; !ok {
+								cache[id]=true
+								//NOT IN THE MAP.
+								err =session.Query("INSERT INTO hvd.fb (fbid,insertion_time,body,owner) VALUES (? , ? , ?,? )",strconv.Itoa(int(feedModel.Id)),gocql.TimeUUID().Timestamp(),feedModel.Body,feedModel.Url).Exec()
+								failOnError(err,"Could not insert")
+								bytes,err:=json.Marshal(feedModel)
+								fmt.Println(string(bytes))
+								err = channel.Publish(
+									"facebook",     // exchange
+									"", // routing key
+									false,  // mandatory
+									false,  // immediate
+									amqp.Publishing {
+										ContentType: "text/plain",
+										Body:        bytes,
+									})
+								failOnError(err, "Failed to publish a message")
+							}
 
 							break;
 
@@ -94,10 +104,12 @@ func parseFeed(s string){
 
 }
 func main() {
+	cache = make(map[uint32]bool)
 
 	rabbit:=os.Getenv("RABBITMQ_SERVICE_PORT_5672_TCP_ADDR")
+	cassandra := os.Getenv("CASSANDRA_SERVICE_HOST")
 	url:=os.Getenv("FACEBOOK_FEED")
-	if rabbit == "" || url == ""{
+	if rabbit == "" || url == "" || cassandra  == ""{
 		panic("No environment for rabbit")
 	}
 	conn, err := amqp.Dial("amqp://guest:guest@"+rabbit+":5672/")
@@ -111,8 +123,22 @@ func main() {
 	failOnError(err, "Failed to declare a queue ")
 
 
+	cluster := gocql.NewCluster(cassandra)
+	//cluster.Keyspace = keyspace
+	session, err = cluster.CreateSession()
 
-	failOnError(err, "Failed to bind to the queue.")
+	if err != nil {
+		failOnError(err, "Can't connect to cassandra hvd")
+	}
+	err =session.Query("CREATE KEYSPACE IF NOT EXISTS hvd WITH REPLICATION  = { 'class':'SimpleStrategy','replication_factor':'1'}").Exec()
+	if err != nil {
+		failOnError(err,"Can't create or open keyspace")
+	}
+
+	err =session.Query("CREATE TABLE IF NOT EXISTS hvd.fb  (fbid text PRIMARY KEY,  insertion_time timestamp, body text , owner text)").Exec()
+	if err != nil {
+		failOnError(err,"Can't create table")
+	}
 
 	err = channel.ExchangeDeclare(
 		"facebook",

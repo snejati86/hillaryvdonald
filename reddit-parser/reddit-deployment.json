@@ -2,15 +2,15 @@
     "kind": "Deployment",
     "apiVersion": "extensions/v1beta1",
     "metadata": {
-        "name": "fb-stream",
+        "name": "reddit-parser",
         "namespace": "default",
-        "selfLink": "/apis/extensions/v1beta1/namespaces/default/deployments/fb-stream",
-        "uid": "59c726ab-1715-11e6-a95c-42010af00053",
-        "resourceVersion": "261635",
+        "selfLink": "/apis/extensions/v1beta1/namespaces/default/deployments/reddit-parser",
+        "uid": "8f8ec3ac-18c5-11e6-a64b-42010af0004f",
+        "resourceVersion": "22971",
         "generation": 2,
-        "creationTimestamp": "2016-05-11T01:11:54Z",
+        "creationTimestamp": "2016-05-13T04:45:47Z",
         "labels": {
-            "run": "fb-stream"
+            "run": "reddit-parser"
         },
         "annotations": {
             "deployment.kubernetes.io/revision": "1"
@@ -20,40 +20,41 @@
         "replicas": 1,
         "selector": {
             "matchLabels": {
-                "run": "fb-stream"
+                "run": "reddit-parser"
             }
         },
         "template": {
             "metadata": {
                 "creationTimestamp": null,
                 "labels": {
-                    "run": "fb-stream"
+                    "run": "reddit-parser"
                 }
             },
             "spec": {
                 "containers": [
                     {
-                        "name": "donald-stream",
-                      "env": [{
-                      "name": "FACEBOOK_FEED",
-                      "value":"https://www.facebook.com/DonaldTrump/"
-                    }],
-                        "image": "gcr.io/hillaryvdonald/fb-stream:v2",
+                        "name": "politics",
+                        "env": [{
+                          "name": "SUBREDDIT",
+                          "value":"politics"
+                        }],
+                        "image": "gcr.io/hillaryvdonald/reddit-parser:v2",
                         "resources": {},
                         "terminationMessagePath": "/dev/termination-log",
                         "imagePullPolicy": "IfNotPresent"
                     },
-                  {
-                    "name": "hillary-stream",
-                    "env": [{
-                      "name": "FACEBOOK_FEED",
-                      "value":"https://www.facebook.com/hillaryclinton/"
-                    }],
-                    "image": "gcr.io/hillaryvdonald/fb-stream:v2",
-                    "resources": {},
-                    "terminationMessagePath": "/dev/termination-log",
-                    "imagePullPolicy": "IfNotPresent"
-                  }
+                    {
+                        "name": "all",
+                        "env": [{
+                          "name": "SUBREDDIT",
+                          "value":"all"
+                        }],
+                        "image": "gcr.io/hillaryvdonald/reddit-parser:v2",
+                        "resources": {},
+                        "terminationMessagePath": "/dev/termination-log",
+                        "imagePullPolicy": "IfNotPresent"
+                    }
+
                 ],
                 "restartPolicy": "Always",
                 "terminationGracePeriodSeconds": 30,

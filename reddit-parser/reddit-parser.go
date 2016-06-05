@@ -77,7 +77,8 @@ func failOnError(err error, msg string) {
 
 func main() {
 	rabbit:=os.Getenv("RABBITMQ_SERVICE_PORT_5672_TCP_ADDR")
-	if rabbit == ""{
+	subreddit := os.Getenv("SUBREDDIT")
+	if rabbit == "" || subreddit == ""{
 		panic("No environment for rabbit")
 	}
 	conn, err := amqp.Dial("amqp://guest:guest@"+rabbit+":5672/")
@@ -110,7 +111,7 @@ func main() {
 		select{
 		case <-uploadTime:
 			go func (){
-				resp, err := http.Get("https://www.reddit.com/r/all/comments/.json?limit=100")
+				resp, err := http.Get("https://www.reddit.com/r/"+subreddit+"/comments/.json?limit=100")
 				if err != nil {
 					fmt.Println("Error")
 				}else{
