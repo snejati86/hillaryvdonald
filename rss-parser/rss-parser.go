@@ -42,11 +42,6 @@ func parseFeed(url string){
 									Body:        b,
 								})
 							failOnError(err, "Failed to publish a message")
-//							fmt.Println("Found new feed.")
-//							_, err := bucket.Insert(item.ID, item, 0);
-//							if err != nil {
-//								fmt.Println(err)
-//							}
 						}
 					}
 
@@ -59,27 +54,14 @@ func itemMeetCriteria(item *rss.Item) bool {
 }
 
 func itemIsNew(item *rss.Item) bool{
-//	id:=item.ID
-//	var RssItem rss.Item
-//	_,err := bucket.Get(id,&RssItem)
-//	fmt.Println(err)
-//	return err != nil
+
 	return true
 }
 
 
 
 func main() {
-//	cluster, conerr := gocb.Connect("couchbase://192.168.99.100")
-//	if conerr != nil {
-//		failOnError(conerr,"Can't connect to couchbase")
-//	}
-//	b, bucerr := cluster.OpenBucket("tweets", "")
-//	b.SetOperationTimeout(time.Second*10)
-//	bucket = b
-//	if  bucerr != nil {
-//		failOnError(conerr,"Can't open bucket")
-//	}
+
 	queueIp:=os.Getenv("RABBITMQ_SERVICE_PORT_5672_TCP_ADDR")
 	rssUrl:=os.Getenv("RSS_URL")
 	if queueIp == "" || rssUrl == ""{
@@ -111,21 +93,4 @@ func main() {
 			parseFeed(rssUrl)
 		}
 	}
-//    feed, err := rss.Fetch("https://www.reddit.com/.rss")
-//    if err != nil {
-//		panic(err)
-//        // handle error.
-//    }else{
-//		fmt.Println(feed)
-//		fmt.Println(feed.Refresh)
-//	}
-//
-//
-//
-//    // ... Some time later ...
-//
-//    err = feed.Update()
-//    if err != nil {
-//        // handle error.
-//    }
 }
