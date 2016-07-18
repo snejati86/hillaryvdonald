@@ -29,7 +29,7 @@
                 "containers": [
                     {
                         "name": "reddit-dumper",
-                        "image": "gcr.io/hillaryvdonald/gcs-dumper:v5",
+                        "image": "gcr.io/hillaryvdonald/gcs-dumper:v6",
                         "resources": {},
                         "terminationMessagePath": "/dev/termination-log",
                         "imagePullPolicy": "IfNotPresent",

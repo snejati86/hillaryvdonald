@@ -14,15 +14,14 @@ import (
 	storage "google.golang.org/api/storage/v1"
 	"golang.org/x/oauth2/google"
 	"golang.org/x/net/context"
-	"github.com/satori/go.uuid"
 
 )
 
 
 const (
-	MAX_BYTES = 1024  * 1024 * 100
+	MAX_BYTES = 1024  * 1024 * 10
 	scope = storage.DevstorageFullControlScope
-	SECONDS = 30 * 60
+	SECONDS = 60 * 10
 )
 
 
@@ -108,7 +107,7 @@ func failOnError(err error, msg string) {
 
 func dumpFile(msgs [][]byte )  {
 	for i := 0; i < len(msgs); i++ {
-		err:=ioutil.WriteFile("tmp/"+string(uuid.NewV4()[15]), msgs[i], 0644)
+		err:=ioutil.WriteFile("tmp/"+time.Now().String(), msgs[i], 0644)
 		fmt.Println(err)
 		//		w.Close()
 
