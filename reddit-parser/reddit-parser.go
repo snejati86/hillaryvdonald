@@ -89,15 +89,6 @@ func main() {
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
-	err = ch.ExchangeDeclare(
-		"reddit",
-		"fanout",
-		true,
-		false,
-		false,
-		false,
-		nil)
-	failOnError(err,"Failed to open exchange.");
 	cache := make(map[string][]byte)
 	onEvicted := func(k interface{}, v interface{}) {
 		str, _ := k.(string)

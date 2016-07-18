@@ -3,12 +3,14 @@ package main
 import (
 	"github.com/SlyMarbo/rss"
 	"fmt"
-	"time"
 	"strings"
 	"log"
 	"github.com/streadway/amqp"
 	"encoding/json"
+	_ "github.com/hashicorp/golang-lru"
 	"os"
+	"time"
+	"github.com/hashicorp/golang-lru"
 )
 
 func failOnError(err error, msg string) {
@@ -18,9 +20,16 @@ func failOnError(err error, msg string) {
 	}
 }
 
+const (
+	INTERVAL = 60*10
+)
 
+
+/**
+Will I ever refactor this crap ? Probably not.
+ */
 var channel *amqp.Channel
-var queue amqp.Queue
+var cache map[string]*rss.Item;
 
 func parseFeed(url string){
 	    feed, err := rss.Fetch(url)
@@ -33,13 +42,13 @@ func parseFeed(url string){
 						if itemIsNew(item) {
 							b, err := json.Marshal(item)
 							err = channel.Publish(
-								"",     // exchange
-								queue.Name, // routing key
+								"rss",     // exchange
+								"", // routing key
 								false,  // mandatory
 								false,  // immediate
 								amqp.Publishing {
 									ContentType: "text/plain",
-									Body:        b,
+									Body:   b     ,
 								})
 							failOnError(err, "Failed to publish a message")
 						}
@@ -50,14 +59,22 @@ func parseFeed(url string){
 }
 
 func itemMeetCriteria(item *rss.Item) bool {
-	return strings.Contains(item.Title,"Trump") || strings.Contains(item.Title,"Clinton")
+	return strings.Contains(strings.ToLower(item.Title),"trump")|| strings.Contains(strings.ToLower(item.Title),"clinton")
 }
+
+var l *lru.Cache
 
 func itemIsNew(item *rss.Item) bool{
+	if cache[item.Title] == nil {
 
-	return true
+		fmt.Println("not cahced")
+		l.Add(item.Title,item)
+		return true;
+	}else{
+		fmt.Println("cached")
+		return false;
+	}
 }
-
 
 
 func main() {
@@ -72,24 +89,35 @@ func main() {
 	defer conn.Close()
 
 	ch, err := conn.Channel()
-	channel=ch
 	failOnError(err, "Failed to open a channel")
 	defer ch.Close()
 
-	q, err := ch.QueueDeclare(
-		"feeds", // name
-		false,   // durable
-		false,   // delete when unused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
-	)
-	queue=q
-	tickChan := time.NewTicker(time.Minute * 10).C
+
+	err = ch.ExchangeDeclare(
+		"rss",
+		"fanout",
+		true,
+		false,
+		false,
+		false,
+		nil)
+	failOnError(err,"Failed to open exchange.");
+
+	channel=ch
+
+
+	tickChan := time.NewTicker(time.Second * INTERVAL).C
+	cache = make(map[string]*rss.Item)
+	onEvicted := func(k interface{}, v interface{}) {
+		str, _ := k.(string)
+		delete(cache,str)
+	}
+	l,_=lru.NewWithEvict(100,onEvicted)
 	parseFeed(rssUrl)
 	for {
 		select {
 		case <- tickChan:
+			fmt.Println("Parsing")
 			parseFeed(rssUrl)
 		}
 	}

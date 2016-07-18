@@ -1,19 +1,6 @@
 {
-	"ImportPath": "github.com/snejati86/rss-parser",
+	"ImportPath": ".",
 	"GoVersion": "go1.6",
-	"GodepVersion": "v63",
-	"Deps": [
-		{
-			"ImportPath": "github.com/SlyMarbo/rss",
-			"Rev": "5e6e66b814395e9f52074d642e50cbeb9b6c1f8f"
-		},
-		{
-			"ImportPath": "github.com/axgle/mahonia",
-			"Rev": "c528b747d92d41ca581a7acf3e604c396fc7c034"
-		},
-		{
-			"ImportPath": "github.com/streadway/amqp",
-			"Rev": "2e25825abdbd7752ff08b270d313b93519a0a232"
-		}
-	]
+	"GodepVersion": "v74",
+	"Deps": []
 }
